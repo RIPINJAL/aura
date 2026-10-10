@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List
 
+from app.agents.llm import CareerResult, OpenAICompatibleClient, ResearchResult
+
 
 @dataclass
 class CareerAgent:
@@ -16,3 +18,11 @@ class CareerAgent:
             "gaps": ["Portfolio evidence", "Interview practice", "Project depth"],
             "status": "completed",
         }
+
+    def run_with_llm(
+        self,
+        user_request: str,
+        research: ResearchResult,
+        client: OpenAICompatibleClient,
+    ) -> CareerResult:
+        return client.run_career(user_request, research)

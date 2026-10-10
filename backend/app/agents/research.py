@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List
 
+from app.agents.llm import OpenAICompatibleClient, ResearchResult
+
 
 @dataclass
 class ResearchAgent:
@@ -19,3 +21,11 @@ class ResearchAgent:
             ],
             "status": "completed",
         }
+
+    def run_with_llm(
+        self,
+        user_request: str,
+        context: list[dict[str, str]],
+        client: OpenAICompatibleClient,
+    ) -> ResearchResult:
+        return client.run_research(user_request, context)

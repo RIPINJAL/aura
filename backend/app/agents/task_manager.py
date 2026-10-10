@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List
 
+from app.agents.llm import CareerResult, OpenAICompatibleClient, ResearchResult, TaskManagerResult
+
 
 @dataclass
 class TaskManagerAgent:
@@ -20,3 +22,12 @@ class TaskManagerAgent:
             ],
             "status": "completed",
         }
+
+    def run_with_llm(
+        self,
+        user_request: str,
+        research: ResearchResult,
+        career: CareerResult,
+        client: OpenAICompatibleClient,
+    ) -> TaskManagerResult:
+        return client.run_task_manager(user_request, research, career)

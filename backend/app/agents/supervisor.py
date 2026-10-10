@@ -37,10 +37,22 @@ class SupervisorAgent:
     def run(self, user_request: str, context: list[dict[str, str]] | None = None) -> dict:
         settings = get_settings()
         if settings.llm_base_url and settings.llm_model:
-            generated = OpenAICompatibleClient(settings).generate_workflow(user_request, context)
-            workflow = generated.model_dump(exclude={"summary", "plan"})
-            summary = generated.summary
-            plan = generated.plan
+            client = OpenAICompatibleClient(settings)
+            research_result = ResearchAgent().run_with_llm(user_request, context or [], client)
+            career_result = CareerAgent().run_with_llm(user_request, research_result, client)
+            task_result = TaskManagerAgent().run_with_llm(
+                user_request,
+                research_result,
+                career_result,
+                client,
+            )
+            workflow = {
+                "research": {"agent": "research", **research_result.model_dump(), "status": "completed"},
+                "career": {"agent": "career", **career_result.model_dump(), "status": "completed"},
+                "task_manager": {"agent": "task_manager", **task_result.model_dump(), "status": "completed"},
+            }
+            summary = "Research, career, and task manager agents completed their handoffs."
+            plan = self.plan(user_request)
             mode = "llm"
         else:
             workflow = {
@@ -64,4 +76,10 @@ class SupervisorAgent:
             "context_used": [
                 f"{item['kind']}: {item['title']}" for item in (context or [])
             ] if mode == "llm" else [],
+            "agent_trace": [
+                {"agent": "research", "status": "completed"},
+                {"agent": "career", "status": "completed", "input": "research"},
+                {"agent": "task_manager", "status": "completed", "input": "research,career"},
+                {"agent": "evaluator", "status": evaluator["status"], "input": "workflow"},
+            ],
         }

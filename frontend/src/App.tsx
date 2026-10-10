@@ -51,6 +51,7 @@ type AgentRunResult = {
   summary?: string
   plan?: string[]
   status?: string
+  agent_trace?: { agent: string; status: string; input?: string }[]
   workflow?: {
     task_manager?: {
       tasks?: string[]
@@ -569,6 +570,17 @@ function App() {
 
         <section className="panel">
           <h2>Execution Output</h2>
+          {result?.agent_trace && (
+            <ol className="agent-trace" aria-label="Agent execution trace">
+              {result.agent_trace.map((entry) => (
+                <li key={entry.agent}>
+                  <span className="trace-agent">{entry.agent.replace(/_/g, ' ')}</span>
+                  {entry.input && <span className="trace-input">from {entry.input.replace(/,/g, ' + ')}</span>}
+                  <span className={`trace-status trace-${entry.status}`}>{entry.status.replace(/_/g, ' ')}</span>
+                </li>
+              ))}
+            </ol>
+          )}
           <pre>{result ? JSON.stringify(result, null, 2) : 'No output yet.'}</pre>
           {result?.workflow?.task_manager?.tasks?.length ? (
             <button

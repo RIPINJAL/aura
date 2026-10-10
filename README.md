@@ -72,18 +72,17 @@ npm install
 npm run dev -- --host 0.0.0.0
 ```
 
-## Phase 1 status
+## Agent workflow
 
-This repository currently includes the foundational pieces for:
+When an OpenAI-compatible provider is configured, the Supervisor runs three specialized agents as separate model calls:
 
-- FastAPI backend shell
-- Supervisor agent scaffold
-- Task management API
-- Health route
-- React dashboard shell
-- Docker Compose for Postgres and Redis
-- Environment configuration
+1. Research agent receives the user request and relevant saved context.
+2. Career agent receives the request and the Research agent's structured findings.
+3. Task Manager agent receives the request plus the Research and Career outputs.
+4. Evaluator checks that the expected agent outputs are present.
 
-## Notes
+The API response includes `agent_trace` so the handoffs can be inspected. Without `LLM_BASE_URL` and `LLM_MODEL`, the application uses its built-in demo responses.
 
-This is the foundation for the larger multi-agent platform described in the project brief. The next stages are memory, tool registry, browser agent, evaluator, approvals, and deployment hardening.
+## Current scope
+
+The app includes account registration and login, user-scoped tasks, memory, documents and approvals, keyword document/context retrieval, a configurable OpenAI-compatible provider, and a React dashboard. Browser visits are still simulated; research uses saved context and does not browse the public web.
