@@ -13,15 +13,17 @@ from app.api.memory import router as memory_router
 from app.api.security import router as security_router
 from app.api.tasks import router as tasks_router
 from app.api.tools import router as tools_router
+from app.core.config import get_settings
 from app.core.database import get_db, init_db
 from app.core.security import get_current_user
 from app.models.user import User
 
 app = FastAPI(title="AURA API", version="0.1.0")
+settings = get_settings()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

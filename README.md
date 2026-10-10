@@ -86,3 +86,14 @@ The API response includes `agent_trace` so the handoffs can be inspected. Withou
 ## Current scope
 
 The app includes account registration and login, user-scoped tasks, memory, documents and approvals, keyword document/context retrieval, a configurable OpenAI-compatible provider, and a React dashboard. Browser visits are still simulated; research uses saved context and does not browse the public web.
+
+## Free-tier deployment
+
+The deployment setup targets a Vercel static frontend, a Render free Docker web service, and a Neon free PostgreSQL database. Render's free web service may sleep when idle and take time to wake; free-tier availability and limits depend on the provider and account.
+
+1. Create a Neon PostgreSQL project and copy its pooled connection string. For this Psycopg 3 backend, set its scheme to `postgresql+psycopg://` and keep `sslmode=require` in the URL.
+2. In Render, create a Blueprint from this repository and select `render.yaml`. Set `DATABASE_URL` to the Neon connection string and `CORS_ORIGINS` to the final Vercel origin, for example `https://aura-web.vercel.app`. Render generates `SECRET_KEY`; do not replace it with the placeholder.
+3. In Vercel, import this repository as a project with the root directory set to `frontend`. Set `VITE_API_URL` to the Render API origin, for example `https://aura-api.onrender.com`, without a trailing slash.
+4. After Vercel provides its final domain, update Render's `CORS_ORIGINS` to that exact origin and redeploy the API.
+
+The OpenAI-compatible model variables are optional. Keep `LLM_API_KEY` in Render's environment settings only; never add provider credentials to Git or the Vercel frontend.
